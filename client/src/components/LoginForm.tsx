@@ -3,13 +3,13 @@ import AuthService from "../services/AuthService";
 import {useDispatch, useSelector} from "react-redux";
 import {login, registration, setAuth, setUser} from "../redux/slices/userSlice";
 import axios from "axios";
-import {RootState} from "../redux/store";
+import {RootState, useAppDispatch} from "../redux/store";
 
 const LoginForm: FC = () => {
 
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const {status} = useSelector((state: RootState) => state.user)
 
     const loginUser = async (email: string, password: string) => {
@@ -24,7 +24,6 @@ const LoginForm: FC = () => {
         //     // console.log(e.response?.data?.message)
         // }
         dispatch(
-            // @ts-ignore
             login({
                 email,
                 password
