@@ -2,7 +2,7 @@ import {createAsyncThunk, createSlice} from '@reduxjs/toolkit'
 import type {PayloadAction} from '@reduxjs/toolkit'
 import {IUser} from "../../models/IUser";
 import AuthService from "../../services/AuthService";
-import axios from "axios";
+import axios from "../../http";
 
 export enum Status {
     LOADING = 'loading',
@@ -12,35 +12,45 @@ export enum Status {
 
 
 export interface UserState {
-    user: IUser;
+    user: IUser | null;
     isAuth: boolean;
     status: Status;
 }
 
-export type UserSargseargtate = {
+export type IParams = {
     email: string;
     password: string;
 }
 
 const initialState: UserState = {
-    user: {} as IUser,
+    user: null,
     isAuth: false,
     status: Status.LOADING,
 }
 
-export const registration = createAsyncThunk<UserState, UserSargseargtate>('user/registration', async (params) => {
+export const registration = createAsyncThunk<UserState, IParams>('user/registration', async (params) => {
     try {
         const {email, password} = params
-        const response = await axios.post('http://localhost:5000/api/registration', {email, password})
+        const response = await axios.post('/registration', {email, password})
+        console.log(response.data)
         return response.data;
     } catch (e) {
         console.log(e)
     }
 })
-export const login = createAsyncThunk<UserState, UserSargseargtate>('user/login', async (params) => {
+export const login = createAsyncThunk<UserState, IParams>('user/login', async (params) => {
     try {
         const {email, password} = params
-        const response = await axios.post('http://localhost:5000/api/login', {email, password})
+        const response = await axios.post('/login', {email, password})
+        console.log(response.data)
+        return response.data;
+    } catch (e) {
+        console.log(e)
+    }
+})
+export const logout = createAsyncThunk<UserState>('user/login', async () => {
+    try {
+        const response = await axios.post('/logout',)
         return response.data;
     } catch (e) {
         console.log(e)
@@ -63,7 +73,7 @@ export const userSlice = createSlice({
             .addCase(registration.pending, (state) => {
                 state.status = Status.LOADING;
                 state.isAuth = false;
-                state.user = {} as IUser;
+                state.user = null;
             })
             .addCase(registration.fulfilled, (state, action) => {
                 state.status = Status.SUCCESS;
@@ -75,7 +85,7 @@ export const userSlice = createSlice({
             .addCase(registration.rejected, (state, action) => {
                 state.status = Status.ERROR;
                 state.isAuth = false;
-                state.user = {} as IUser;
+                state.user = null;
             })
             .addCase(login.pending, (state) => {
                 state.status = Status.LOADING;

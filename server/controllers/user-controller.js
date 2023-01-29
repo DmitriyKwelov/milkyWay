@@ -58,6 +58,7 @@ class UserController {
         }
     }
     async getUsers(req, res, next) {
+        console.log('45555')
         try {
             const authorizationHeader = req.headers.authorization;
             if (!authorizationHeader) {
