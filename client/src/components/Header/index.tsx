@@ -36,7 +36,7 @@ const Header: FC = () => {
                             ?
                             <>
                                 <button onClick={logoutUser} className={styles.login}>Logout</button>
-                                <NavLink className={styles.login} to="/profile">{user.email}</NavLink>
+                                <NavLink className={styles.login} to="/profile">{user.username}</NavLink>
                             </>
                             :
                             <>

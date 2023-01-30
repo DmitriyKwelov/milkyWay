@@ -25,7 +25,8 @@ class UserService {
 
         console.log('333333')
         const userDto = new UserDto(user); // id, email, isActivated
-        const tokens = tokenService.generateTokens({...userDto});
+        console.log(userDto)
+        const tokens = tokenService.generateTokens({userDto});
         await tokenService.saveToken(userDto.id, tokens.refreshToken)
 
         return {...tokens, user: userDto}
@@ -50,6 +51,7 @@ class UserService {
             throw ApiError.BadRequest('Неверный пароль')
         }
         const userDto = new UserDto(user);
+        console.log(userDto)
         const tokens = tokenService.generateTokens({userDto});
         await tokenService.saveToken(userDto.id, tokens.refreshToken)
 
@@ -60,18 +62,28 @@ class UserService {
         return token
     }
     async refresh(refreshToken) {
+        console.log('hhh')
         if(!refreshToken) {
             throw ApiError.UnauthorizedError()
         }
+        console.log('kkk')
         const userData = tokenService.validateRefreshToken(refreshToken);
+        console.log(userData)
         const tokenFromDb = await tokenService.findToken(refreshToken)
+        console.log(tokenFromDb)
         if (!userData || !tokenFromDb) {
 
         }
+        console.log('nnn')
+        console.log(userData.id)
         const user = await UserModel.findOne(userData.id)
+        console.log('zzzz')
         const userDto = new UserDto(user);
+        console.log('xxxxx')
         const tokens = tokenService.generateTokens({userDto});
         await tokenService.saveToken(userDto.id, tokens.refreshToken)
+
+        console.log('cccc')
 
         return {...tokens, user: userDto}
     }

@@ -3,7 +3,7 @@ import LoginForm from "./components/LoginForm";
 import Header from "./components/Header";
 import './scss/_normalize.scss'
 import {RootState, useAppDispatch} from "./redux/store";
-import {checkAuth, Status} from "./redux/slices/userSlice";
+import {checkAuth, setIsLoading, Status} from "./redux/slices/userSlice";
 import {useSelector} from "react-redux";
 import {Route, Routes} from "react-router-dom";
 import Registration from "./page/Regitration";
@@ -12,14 +12,20 @@ import Login from "./page/Login";
 
 const App:FC = () => {
 
-    const status = useSelector((state: RootState) => state.user.status)
+    const {isLoading} = useSelector((state: RootState) => state.user)
     const dispatch = useAppDispatch();
 
     useEffect(() => {
         if (localStorage.getItem('token')){
             dispatch(checkAuth())
+        } else {
+            dispatch(setIsLoading(false))
         }
     }, [])
+
+    if(isLoading) {
+        return <div></div>
+    }
 
     return (
         <div>

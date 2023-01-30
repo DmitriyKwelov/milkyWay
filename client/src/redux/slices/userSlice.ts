@@ -15,6 +15,7 @@ export interface UserState {
     user: IUser | null;
     isAuth: boolean;
     status: Status;
+    isLoading: boolean;
 }
 
 export type IParamsRegister = {
@@ -31,6 +32,7 @@ const initialState: UserState = {
     user: null,
     isAuth: false,
     status: Status.LOADING,
+    isLoading: true
 }
 
 export const registration = createAsyncThunk<UserState, IParamsRegister>('user/registration', async (params) => {
@@ -75,11 +77,8 @@ export const userSlice = createSlice({
     name: 'user',
     initialState,
     reducers: {
-        setUser(state, action: PayloadAction<IUser>) {
-            state.user = action.payload;
-        },
-        setAuth(state, action: PayloadAction<boolean>) {
-            state.isAuth = action.payload
+        setIsLoading(state, action: PayloadAction<boolean>) {
+            state.isLoading = action.payload;
         },
     },
     extraReducers: (builder) => {
@@ -139,16 +138,18 @@ export const userSlice = createSlice({
                 // @ts-ignore
                 localStorage.setItem('token', action.payload.accessToken);
                 state.user = action.payload.user;
+                state.isLoading = false;
             })
             .addCase(checkAuth.rejected, (state, action) => {
                 state.status = Status.ERROR;
                 state.isAuth = false;
                 state.user = {} as IUser;
+                state.isLoading = false;
             })
 
     }
 })
 
-export const {setUser, setAuth} = userSlice.actions
+export const {setIsLoading} = userSlice.actions
 
 export default userSlice.reducer
