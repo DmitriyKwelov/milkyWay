@@ -10,8 +10,8 @@ class UserController {
             if (!error.isEmpty()) {
                 return next(ApiError.BadRequest("Ошибка при валидации", error.array()))
             }
-            const {email, password} = req.body;
-            const userData = await userService.registration(email, password);
+            const {username, email, password} = req.body;
+            const userData = await userService.registration(username, email, password,);
             res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true})
             return res.json(userData);
         } catch (e) {
@@ -64,7 +64,7 @@ class UserController {
             if (!authorizationHeader) {
                 return next(ApiError.UnauthorizedError());
             }
-            const accessToken = authorizationHeader.split(' ')[1];
+            const accessToken = authorizationHeader;
             if (!accessToken) {
                 return next(ApiError.UnauthorizedError());
             }

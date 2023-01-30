@@ -11,7 +11,7 @@ module.exports = function (req, res, next) {
             return next(ApiError.UnauthorizedError());
         }
 
-        const accessToken = authorizationHeader.split(' ')[1];
+        const accessToken = authorizationHeader;
         if (!accessToken) {
             return next(ApiError.UnauthorizedError());
         }

@@ -1,29 +1,28 @@
-// import axios from "axios";
-//
-// export const API_URL = `http:/localhost:5000/api`
-//
-// const $api = axios.create({
-//     withCredentials: true,
-//     baseURL: 'http:/localhost:5000/api'
-// })
-//
-// $api.interceptors.request.use((config) => {
-//     config.headers.Authorization = `Bearer ${localStorage.getItem('token')}`
-//     return config;
-// })
-//
-// export default $api
 import axios from "axios";
 
-const instance = axios.create({
+const $api = axios.create({
     withCredentials: true,
-    // credentials: true,
     baseURL: 'http://localhost:5000/api'
 })
 
-instance.interceptors.request.use((config) => {
+$api.interceptors.request.use((config) => {
     config.headers.Authorization = window.localStorage.getItem('token')
-    return config
+    return config;
+})
+$api.interceptors.response.use((cofig) => {
+    return cofig;
+}, async (error) => {
+    const originalRequest = error.config;
+    if (error.response.status == 401 && error.config && !error.config._isRetry) {
+        try {
+            const response = await axios.get('http://localhost:5000/api/refresh', {withCredentials: true,})
+            localStorage.setItem('token', response.data.accessToken);
+            return $api.request(originalRequest);
+        } catch (e) {
+            console.log('НЕ АВТОРИЗОВАН')
+        }
+        throw error;
+    }
 })
 
-export default instance;
+export default $api;

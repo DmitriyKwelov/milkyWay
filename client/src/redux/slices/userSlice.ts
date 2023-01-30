@@ -1,8 +1,8 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit'
 import type {PayloadAction} from '@reduxjs/toolkit'
 import {IUser} from "../../models/IUser";
-import AuthService from "../../services/AuthService";
-import axios from "../../http";
+import $api from "../../http";
+import axios from "axios";
 
 export enum Status {
     LOADING = 'loading',
@@ -17,7 +17,12 @@ export interface UserState {
     status: Status;
 }
 
-export type IParams = {
+export type IParamsRegister = {
+    username: string;
+    email: string;
+    password: string;
+}
+export type IParamsLogin = {
     email: string;
     password: string;
 }
@@ -28,29 +33,38 @@ const initialState: UserState = {
     status: Status.LOADING,
 }
 
-export const registration = createAsyncThunk<UserState, IParams>('user/registration', async (params) => {
+export const registration = createAsyncThunk<UserState, IParamsRegister>('user/registration', async (params) => {
     try {
-        const {email, password} = params
-        const response = await axios.post('/registration', {email, password})
+        const {username, email, password} = params
+        const response = await $api.post('/registration', {username, email, password})
         console.log(response.data)
         return response.data;
     } catch (e) {
         console.log(e)
     }
 })
-export const login = createAsyncThunk<UserState, IParams>('user/login', async (params) => {
+export const login = createAsyncThunk<UserState, IParamsLogin>('user/login', async (params) => {
     try {
         const {email, password} = params
-        const response = await axios.post('/login', {email, password})
+        const response = await $api.post('/login', {email, password})
         console.log(response.data)
         return response.data;
     } catch (e) {
         console.log(e)
     }
 })
-export const logout = createAsyncThunk<UserState>('user/login', async () => {
+export const logout = createAsyncThunk<UserState>('user/logout', async () => {
     try {
-        const response = await axios.post('/logout',)
+        const response = await $api.post('/logout',)
+        return response.data;
+    } catch (e) {
+        console.log(e)
+    }
+})
+export const checkAuth = createAsyncThunk<UserState>('user/checkAuth', async () => {
+    try {
+        const response = await axios.get('http://localhost:5000/api/refresh', {withCredentials: true,})
+        console.log(response.data)
         return response.data;
     } catch (e) {
         console.log(e)
@@ -70,6 +84,7 @@ export const userSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
+            // регистрация
             .addCase(registration.pending, (state) => {
                 state.status = Status.LOADING;
                 state.isAuth = false;
@@ -87,6 +102,7 @@ export const userSlice = createSlice({
                 state.isAuth = false;
                 state.user = null;
             })
+            // авторизация
             .addCase(login.pending, (state) => {
                 state.status = Status.LOADING;
                 state.isAuth = false;
@@ -100,6 +116,31 @@ export const userSlice = createSlice({
                 state.user = action.payload.user;
             })
             .addCase(login.rejected, (state, action) => {
+                state.status = Status.ERROR;
+                state.isAuth = false;
+                state.user = {} as IUser;
+            })
+            // logout
+            .addCase(logout.pending, (state) => {
+                // @ts-ignore
+                localStorage.removeItem('token');
+                state.isAuth = false;
+                state.user = null;
+            })
+            // refresh
+            .addCase(checkAuth.pending, (state) => {
+                state.status = Status.LOADING;
+                state.isAuth = false;
+                state.user = {} as IUser;
+            })
+            .addCase(checkAuth.fulfilled, (state, action) => {
+                state.status = Status.SUCCESS;
+                state.isAuth = true;
+                // @ts-ignore
+                localStorage.setItem('token', action.payload.accessToken);
+                state.user = action.payload.user;
+            })
+            .addCase(checkAuth.rejected, (state, action) => {
                 state.status = Status.ERROR;
                 state.isAuth = false;
                 state.user = {} as IUser;
