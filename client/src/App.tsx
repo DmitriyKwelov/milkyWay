@@ -9,6 +9,7 @@ import {Route, Routes} from "react-router-dom";
 import Registration from "./page/Regitration";
 import Home from "./page/Home";
 import Login from "./page/Login";
+import Profile from "./page/Profile";
 
 const App:FC = () => {
 
@@ -33,6 +34,7 @@ const App:FC = () => {
             <Routes>
                 <Route path="/registration" element={<Registration/>}/>
                 <Route path="/login" element={<Login/>}/>
+                <Route path="/profile" element={<Profile/>}/>
                 <Route path="/" element={<Home/>}/>
             </Routes>
         </div>
